@@ -1,0 +1,287 @@
+basePath: /api/v1
+definitions:
+  controller.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  model.AdvanceFilterPayload:
+    properties:
+      ignoreAssociation:
+        type: boolean
+      isPaginateDB:
+        type: boolean
+      modelType:
+        type: string
+      page:
+        type: integer
+      pageSize:
+        type: integer
+      querySearch:
+        type: string
+      selectColumn:
+        items:
+          type: string
+        type: array
+    type: object
+  model.BasicQueryPayload:
+    properties:
+      data: {}
+      modelType:
+        type: string
+    type: object
+  model.ListModelId:
+    properties:
+      id:
+        items:
+          type: integer
+        type: array
+      modelType:
+        type: string
+    type: object
+  model.LoginPayload:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  model.RegisterPayload:
+    properties:
+      email:
+        type: string
+      fullName:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      username:
+        type: string
+    type: object
+  model.Role:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.User:
+    properties:
+      id:
+        type: integer
+      password:
+        type: string
+      user_roles:
+        items:
+          $ref: '#/definitions/model.UserRole'
+        type: array
+      username:
+        type: string
+    type: object
+  model.UserRole:
+    properties:
+      active:
+        type: boolean
+      id:
+        type: integer
+      role:
+        $ref: '#/definitions/model.Role'
+      role_id:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+host: localhost:11190
+info:
+  contact: {}
+  description: APIs list for project PNK-Intern
+  title: PNK-Intern Swagger
+  version: "2.0"
+paths:
+  /advance-filter:
+    post:
+      consumes:
+      - application/json
+      description: Advance Filter for all model
+      parameters:
+      - description: Advance Filter Payload
+        in: body
+        name: advanceFilterPayload
+        required: true
+        schema:
+          $ref: '#/definitions/model.AdvanceFilterPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Advance Filter
+      tags:
+      - Advance Filter
+  /basicQuery:
+    delete:
+      consumes:
+      - application/json
+      description: Delete model from database
+      parameters:
+      - description: BasicQueryPayload
+        in: body
+        name: basicQueryPayload
+        required: true
+        schema:
+          $ref: '#/definitions/model.ListModelId'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Basic Query
+      tags:
+      - BasicQuery
+    post:
+      consumes:
+      - application/json
+      description: Upsert model to database
+      parameters:
+      - description: BasicQueryPayload
+        in: body
+        name: basicQueryPayload
+        required: true
+        schema:
+          $ref: '#/definitions/model.BasicQueryPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Basic Query
+      tags:
+      - BasicQuery
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: Login
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      summary: Login
+      tags:
+      - Access
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Logout
+      tags:
+      - Access
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refresh
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Refresh
+      tags:
+      - Access
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register
+      parameters:
+      - description: UserRegister
+        in: body
+        name: pauload
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      summary: Register
+      tags:
+      - Access
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: Create user
+      parameters:
+      - description: User
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Create user
+      tags:
+      - User
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
