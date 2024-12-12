@@ -18,6 +18,8 @@ type Company struct {
 	CompanyLogo    string `json:"company_logo"`    // Đường dân logo
 	CompanyAddress string `json:"company_address"` // Địa chỉ công ty
 
+	CompanyStakeholder []CompanyStakeholder `json:"company_stackholder" gorm:"foreignKey:CompanyID; constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+
 	CreatedAt time.Time      `json:"createdAt" swaggerignore:"true"`
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`
 	UpdatedAt time.Time      `json:"updatedAt" swaggerignore:"true"`

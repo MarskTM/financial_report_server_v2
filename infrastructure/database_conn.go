@@ -52,8 +52,9 @@ func InitDatabase(allowMigrate bool) error {
 			&model.Profile{},            // Thông tin cá nhân
 			&model.UserForgotPassword{}, // Quản lý thông tin quên mật khẩu
 
-			&model.Company{}, // Thông tin doanh nghiệp
-			
+			&model.Company{},            // Thông tin doanh nghiệp
+			&model.CompanyStakeholder{}, // Thông ban lãnh đạo
+
 			// &model.FinancialReport{}, // Báo cáo tài chính
 			// &model.BalanceSheet{},    // Cân đối kế toán
 		)
