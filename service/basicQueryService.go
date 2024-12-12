@@ -16,7 +16,7 @@ type BasicQueryService interface {
 	Delete(payload model.ListModelId) error
 }
 
-type basicQueryService struct{
+type basicQueryService struct {
 	emailService EmailService
 }
 
@@ -33,18 +33,27 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 
 	// Setval the max id in the database
 	var maxModelId uint
-	queryGetMaxId := "SELECT setval('" + tableName + "_id_seq', (SELECT MAX(id) FROM " + tableName + ")+1);"
-	if err := db.Model(modelType).Raw(queryGetMaxId).Scan(&maxModelId).Error; err != nil {
+	// queryGetMaxId := "SELECT setval('" + tableName + "_id_seq', (SELECT MAX(id) FROM " + tableName + ")+1);"
+	// if err := db.Model(modelType).Raw(queryGetMaxId).Scan(&maxModelId).Error; err != nil {
+	// 	return nil, fmt.Errorf("set max id error: %v", err)
+	// }
+
+	if err := db.Table(tableName).Select("COALESCE(MAX(id), 1)").Scan(&maxModelId).Error; err != nil {
 		return nil, fmt.Errorf("set max id error: %v", err)
 	}
 
 	// Upsert multiple
 	var listModelCreate []map[string]interface{}
 	var listModelUpdate []map[string]interface{}
+	
 	if reflect.TypeOf(payload.Data).Kind() == reflect.Slice || reflect.TypeOf(payload.Data).Elem().Kind() == reflect.Slice {
+		newInsertID := maxModelId
 		for _, data := range payload.Data.([]interface{}) {
+			newInsertID++
+
 			data := data.(map[string]interface{})
 			if data["id"] == nil || data["id"].(uint) == 0 {
+				data["id"] = newInsertID
 				listModelCreate = append(listModelCreate, data)
 				continue
 			}
@@ -79,43 +88,9 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 	}
 
 	if payload.Data.(map[string]interface{})["id"] == nil {
-		payload.Data.(map[string]interface{})["id"] = maxModelId
+		payload.Data.(map[string]interface{})["id"] = maxModelId + 1
 		if err := db.Model(modelType).Create(payload.Data.(map[string]interface{})).Error; err != nil {
 			return nil, fmt.Errorf("create error: %v", err)
-		}
-
-		if payload.ModelType == "companies" {
-			user := model.User{
-				Username: payload.Data.(map[string]interface{})["email"].(string),
-				Password: hashAndSalt(model.DefaultPassword),
-			}
-			if errorUser := db.Transaction(func(tx *gorm.DB) error {
-				err := s.emailService.SendEmail([]string{user.Username}, "Thông báo tài khoản đăng nhập Hệ thống phân công thực tập", "Tài khoản của bạn là: <br/> Tên đăng nhập: "+user.Username+"<br/>"+"Mật khẩu: "+user.Password)
-				if err != nil {
-					return err
-				}
-
-				if err := tx.Model(&model.User{}).Create(&user).Error; err != nil {
-					return err
-				}
-
-				if err := tx.Model(&model.UserRole{}).Create(&model.UserRole{
-					UserID: user.ID,
-					RoleID: infrastructure.GetClientRole(), // Default role is 1 (client) in database
-					Active: true,
-				}).Error; err != nil {
-					return err
-				}
-
-				if err := tx.Model(&model.Company{}).Where("id = ?", maxModelId).Update("user_id", user.ID).Error; err != nil {
-					return err
-				}
-
-				return nil
-
-			}); errorUser != nil {
-				return nil, fmt.Errorf("create new user error: %v", errorUser)
-			}
 		}
 
 		goto End

@@ -3,9 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
 	"phenikaa/infrastructure"
 	"phenikaa/model"
 	"phenikaa/utils"
@@ -14,12 +12,13 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-chi/jwtauth"
+	"github.com/golang/glog"
 	"github.com/twinj/uuid"
 	"gorm.io/gorm"
 )
 
 type AccessService interface {
-	CreateToken(userId uint, role string) (*model.TokenDetail, error)
+	CreateToken(userID uint, role string) (*model.TokenDetail, error)
 	CreateAuth(userID int, tokenDetail *model.TokenDetail) error
 	DeleteAuth(uuid string) (int64, error)
 	ExtractTokenMetadata(r *http.Request) (*model.AccessDetail, error)
@@ -30,35 +29,30 @@ type accessService struct {
 	db          *gorm.DB
 }
 
-var (
-	infoLog = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Llongfile)
-	errLog  = log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-)
-
-func (s *accessService) CreateToken(userId uint, role string) (*model.TokenDetail, error) {
+func (s *accessService) CreateToken(userID uint, role string) (*model.TokenDetail, error) {
 	var err error
 
 	// Create token details
 	tokenDetail := &model.TokenDetail{}
 
-	var profile model.Profile
-	if userId != 0 {
-		if err = s.db.Model(&model.Profile{}).Where("user_id = ?", userId).Preload("User").Find(&profile).Error; err != nil {
+	var user model.User
+	if userID != 0 {
+		if err = s.db.Where("id = ?", userID).Find(&user).Error; err != nil {
 			return nil, err
 		}
-		tokenDetail.Username = profile.User.Username
+		tokenDetail.Username = user.Username
 	}
 
 	tokenDetail.AtExpires = time.Now().Add(time.Hour * time.Duration(infrastructure.GetExtendAccessHour())).Unix()
-	tokenDetail.AccessUUID = utils.PatternGet(userId) + uuid.NewV4().String()
+	tokenDetail.AccessUUID = utils.PatternGet(userID) + uuid.NewV4().String()
 	tokenDetail.RtExpires = time.Now().Add(time.Hour * time.Duration(infrastructure.GetExtendRefreshHour())).Unix()
-	tokenDetail.RefreshUUID = utils.PatternGet(userId) + uuid.NewV4().String()
+	tokenDetail.RefreshUUID = utils.PatternGet(userID) + uuid.NewV4().String()
 
 	// Create Access Token
 	atClaims := jwt.MapClaims{}
 	atClaims["access_uuid"] = tokenDetail.AccessUUID
 	atClaims["username"] = tokenDetail.Username
-	atClaims["user_id"] = userId
+	atClaims["user_id"] = userID
 	atClaims["role"] = role
 	atClaims["exp"] = tokenDetail.AtExpires
 
@@ -71,7 +65,7 @@ func (s *accessService) CreateToken(userId uint, role string) (*model.TokenDetai
 	rtClaims := jwt.MapClaims{}
 	rtClaims["refresh_uuid"] = tokenDetail.RefreshUUID
 	rtClaims["username"] = tokenDetail.Username
-	rtClaims["user_id"] = userId
+	rtClaims["user_id"] = userID
 	rtClaims["role"] = role
 	rtClaims["exp"] = tokenDetail.RtExpires
 	_, tokenDetail.RefreshToken, err = infrastructure.GetEncodeAuth().Encode(rtClaims)
@@ -122,13 +116,13 @@ func (s *accessService) ExtractTokenMetadata(r *http.Request) (*model.AccessDeta
 
 	accessUUID, ok := claims["access_uuid"].(string)
 	if !ok {
-		errLog.Println("can't parse access uuid from token")
+		glog.V(1).Info("ExtractTokenMetadata(): can't parse access uuid from token")
 		return nil, errors.New("can't parse access uuid from token")
 	}
 
 	userID, err := strconv.ParseUint(fmt.Sprintf("%.f", claims["user_id"]), 10, 64)
 	if err != nil {
-		errLog.Println(err)
+		glog.V(1).Infof("ExtractTokenMetadata() - err: %v", err)
 		return nil, err
 	}
 

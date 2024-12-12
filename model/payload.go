@@ -8,7 +8,7 @@ type AdvanceFilterPayload struct {
 	Page              int            `json:"page"`
 	PageSize          int            `json:"pageSize"`
 	IsPaginateDB      bool           `json:"isPaginateDB"`
-	QuerySerch        string         `json:"querySearch"`
+	QuerySearch        string         `json:"querySearch"`
 	SelectColumn      pq.StringArray `json:"selectColumn"`
 }
 

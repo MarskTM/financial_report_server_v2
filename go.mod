@@ -9,6 +9,7 @@ require (
 	github.com/go-chi/jwtauth v1.2.0
 	github.com/go-chi/render v1.0.3
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/golang/glog v1.2.3
 	github.com/iancoleman/strcase v0.3.0
 	github.com/joho/godotenv v1.5.1
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
