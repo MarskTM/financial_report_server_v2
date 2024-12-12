@@ -44,7 +44,7 @@ func (c *basicQueryController) Upsert(w http.ResponseWriter, r *http.Request) {
 	res := Response{
 		Data:    temp,
 		Success: true,
-		Message: "Upsert " + payload.ModelType + "success",
+		Message: "Upsert " + payload.ModelType + " success",
 	}
 	render.JSON(w, r, res)
 }

@@ -26,7 +26,7 @@ func (s *advanceFilterService) Filter(payload model.AdvanceFilterPayload) (inter
 	} else {
 		query = "id > 0"
 	}
-	
+
 	if payload.IsPaginateDB {
 		db = db.Limit(payload.PageSize).Offset((payload.Page - 1) * payload.PageSize) // This offset to calculate the offset of the first row returned
 	}
@@ -34,11 +34,19 @@ func (s *advanceFilterService) Filter(payload model.AdvanceFilterPayload) (inter
 	if len(payload.SelectColumn) > 0 {
 		db = db.Select(payload.SelectColumn)
 	}
-	if !payload.IgnoreAssociation {
-		for model, condition := range modelPreload {
-			db = db.Preload(model, condition)
+
+	for _, model := range payload.IgnoreAssociation {
+		condition, ok := modelPreload[model]
+		if ok {
+			continue;
 		}
+		db = db.Preload(model, condition)
 	}
+	// if !payload.IgnoreAssociation {
+	// 	for model, condition := range modelPreload {
+	// 		db = db.Preload(model, condition)
+	// 	}
+	// }
 
 	if err := db.Debug().Model(modelType).Where(query).Find(&modelType).Error; err != nil {
 		return nil, err

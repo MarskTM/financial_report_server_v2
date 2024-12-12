@@ -12,7 +12,7 @@ type CompanyStakeholder struct {
 	Avatar    string `json:"avatar"`
 	Name      string `json:"name"`
 	Position  string `json:"position"`
-	YearStart int64  `json:"year_start"`
+	YearStart int64  `json:"year_start"` // ngày bổ nhiệm
 
 	CreatedAt time.Time      `json:"createdAt" swaggerignore:"true"`
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`

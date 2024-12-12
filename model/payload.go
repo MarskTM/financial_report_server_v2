@@ -4,11 +4,11 @@ import "github.com/lib/pq"
 
 type AdvanceFilterPayload struct {
 	ModelType         string         `json:"modelType"`
-	IgnoreAssociation bool           `json:"ignoreAssociation"`
+	IgnoreAssociation []string       `json:"ignoreAssociation"`
 	Page              int            `json:"page"`
 	PageSize          int            `json:"pageSize"`
 	IsPaginateDB      bool           `json:"isPaginateDB"`
-	QuerySearch        string         `json:"querySearch"`
+	QuerySearch       string         `json:"querySearch"`
 	SelectColumn      pq.StringArray `json:"selectColumn"`
 }
 
@@ -47,7 +47,7 @@ type LoginPayload struct {
 
 type RegisterPayload struct {
 	Username  string `json:"username"`
-	Password string `json:"password"`
+	Password  string `json:"password"`
 	Email     string `json:"email"`
 	Birthday  string `json:"birthday"`
 	Phone     string `json:"phone"`
