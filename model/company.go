@@ -10,10 +10,10 @@ import (
 type Company struct {
 	ID int32 `json:"id" gorm:"primary_key"`
 	// Muc 1: thông tin cơ bản
-	CompanyName     string    `json:"company_name"`      // Tên công ty
-	TaxCode         string    `json:"tax_code"`          // Mã số thuế
-	CompanyCode     string    `json:"company_code"`      // Mã công ty
-	EstablishedDate time.Time `json:"established_date" ` // Ngày thành lập
+	CompanyName       string    `json:"company_name"`        // Tên công ty
+	TaxCode           string    `json:"tax_code"`            // Mã số thuế
+	CompanyCode       string    `json:"company_code"`        // Mã công ty
+	EstablishmentDate time.Time `json:"establishment_date" ` // Ngày thành lập
 
 	CompanyType        string `json:"company_type"`        // Loại hình công ty
 	CompanyLogo        string `json:"company_logo"`        // Đường dân logo

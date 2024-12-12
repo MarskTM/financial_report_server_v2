@@ -7,12 +7,12 @@ import (
 )
 
 type CompanyStakeholder struct {
-	ID        int64  `json:"id"`
-	CompanyID int64  `json:"company_id"`
-	Avatar    string `json:"avatar"`
-	Name      string `json:"name"`
-	Position  string `json:"position"`
-	YearStart int64  `json:"year_start"` // ngày bổ nhiệm
+	ID        int32     `json:"id"`
+	CompanyID int32     `json:"company_id"`
+	Avatar    string    `json:"avatar"`
+	Name      string    `json:"name"`
+	Position  string    `json:"position"`
+	YearStart time.Time `json:"year_start"` // ngày bổ nhiệm
 
 	CreatedAt time.Time      `json:"createdAt" swaggerignore:"true"`
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`
