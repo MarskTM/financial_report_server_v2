@@ -10,13 +10,14 @@ import (
 	"phenikaa/utils/emailTemplate"
 	"text/template"
 
+	"github.com/golang/glog"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
 type UserService interface {
-	CheckCredentials(username string, password string) (bool, error)
+	CheckCredentials(username string, password string) (*model.UserResponse, error)
 	GetByUsername(username string) (*model.UserResponse, error)
 	CreateUser(newUser model.RegisterPayload) (*model.User, error)
 	BanUser(username string) error
@@ -31,18 +32,38 @@ type userService struct {
 	db           *gorm.DB
 }
 
-func (s *userService) CheckCredentials(username string, password string) (bool, error) {
-	log.Println("start chake: ", password, " ", username)
+func (s *userService) CheckCredentials(username string, password string) (*model.UserResponse, error) {
+	var userResponse *model.UserResponse
 	var user model.User
+
 	if err := s.db.Debug().Where("username = ?", username).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return false, nil
+			return nil, nil
 		}
-		return false, err
+		return nil, err
 	}
-	log.Println("password: ", password)
-	log.Println("password-gen: ", hashAndSalt(password))
-	return comparePassword(user.Password, password), nil
+
+	if !comparePassword(user.Password, password) {
+		err := fmt.Errorf("password mismatch")
+		glog.V(3).Infof(" - CheckCredentials() has err:", err)
+		return nil, err
+	}
+
+	// ----------------------------------------------------------------
+	var profile *model.Profile
+	if err := s.db.Where("user_id = ?", user.ID).Find(&profile).Error; err != nil {
+		return nil, err
+	}
+
+	userResponse = &model.UserResponse{
+		ID:       user.ID,
+		Username: user.Username,
+		FullName: profile.FirstName + " " + profile.LastName,
+		Role:     user.UserRoles.Role.Type,
+		Profile:  profile,
+	}
+
+	return userResponse, nil
 }
 
 func (s *userService) GetByUsername(username string) (*model.UserResponse, error) {
@@ -128,8 +149,8 @@ func (s *userService) ResetPassword(username string) error {
 }
 
 func (s *userService) ChangePassword(payload model.ChangePasswordPayload) error {
-	check, err := s.CheckCredentials(payload.Username, payload.OldPassword)
-	if err != nil || !check {
+	_, err := s.CheckCredentials(payload.Username, payload.OldPassword)
+	if err != nil {
 		return fmt.Errorf("Worng username or password: %v", err)
 	}
 

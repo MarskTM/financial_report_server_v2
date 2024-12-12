@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"phenikaa/model"
 
+	"github.com/golang/glog"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -21,7 +22,7 @@ func openConnection() (*gorm.DB, error) {
 		// DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
-		ErrLog.Printf("Not connect to database: %+v\n", err)
+		glog.Error("- Not connect to database: %+v\n", err)
 		return nil, err
 	}
 
@@ -42,7 +43,7 @@ func InitDatabase(allowMigrate bool) error {
 	}
 
 	if allowMigrate {
-		InfoLog.Println("Migrating database...")
+		glog.V(1).Info("Migrating database...")
 
 		db.Debug().AutoMigrate(
 			&model.User{},               // Tài khoản
@@ -54,7 +55,7 @@ func InitDatabase(allowMigrate bool) error {
 			&model.FinancialReport{}, // Báo cáo tài chính
 			&model.BalanceSheet{},    // Cân đối kế toán
 		)
-		InfoLog.Println("Done migrating database")
+		glog.V(1).Info("Done migrating database")
 	}
 
 	return nil

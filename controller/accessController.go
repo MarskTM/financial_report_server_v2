@@ -10,6 +10,7 @@ import (
 	// "strings"
 
 	"github.com/go-chi/render"
+	"github.com/golang/glog"
 	"gorm.io/gorm"
 
 	"net/http"
@@ -42,48 +43,47 @@ func (c *accessController) Login(w http.ResponseWriter, r *http.Request) {
 		BadRequestResponse(w, r, err)
 		return
 	}
+	glog.V(3).Infof("+ Login() request: %v", payload)
 
-	if check, err := c.userService.CheckCredentials(payload.Username, payload.Password); err != nil {
-		InternalServerErrorResponse(w, r, err)
-		return
-	} else if !check {
-		InternalServerErrorResponse(w, r, fmt.Errorf("Credentials was not match, auth: %v", check))
-		return
-	}
-
-	userInfo, err := c.userService.GetByUsername(payload.Username)
+	// 1. Check Credentials
+	userInfo, err := c.userService.CheckCredentials(payload.Username, payload.Password)
 	if err != nil {
-		InternalServerErrorResponse(w, r, err)
+		errSystem := fmt.Errorf("- Login() - err: %v", err)
+		InternalServerErrorResponse(w, r, errSystem)
 		return
 	}
 
+	// 2. Generate the authen token
 	tokenDetail, err := c.accessService.CreateToken(uint(userInfo.ID), userInfo.Role)
 	if err != nil {
 		InternalServerErrorResponse(w, r, err)
 		return
 	}
+	userInfo.AccessToken = tokenDetail.AccessToken
+	userInfo.RefreshToken = tokenDetail.RefreshToken
 
+	// 3. Cache Access Token
 	// if err := c.accessService.CreateAuth(int(userInfo.ID), tokenDetail); err != nil {
 	// 	InternalServerErrorResponse(w, r, err)
 	// 	return
 	// }
 
-	userInfo.AccessToken = tokenDetail.AccessToken
-	userInfo.RefreshToken = tokenDetail.RefreshToken
+	// 4. Save Access Token in the HTTP Cookie
 	fullDomain := r.Header.Get("Origin")
 	errCookie := SaveHttpCookie(fullDomain, tokenDetail, w)
 	if errCookie != nil {
 		InternalServerErrorResponse(w, r, err)
 		return
 	}
+
+	// 5. Send the response
 	res = &Response{
 		Data:    userInfo,
 		Success: true,
 		Message: "Login success",
 	}
-
+	glog.V(3).Infof("+ Login() response: %v", payload)
 	render.JSON(w, r, res)
-	return
 }
 
 // @Summary Logout
@@ -110,9 +110,15 @@ func (c *accessController) Refresh(w http.ResponseWriter, r *http.Request) {
 	var res Response
 	authorization := r.Header.Get("Authorization")
 	if authorization == "" {
-		BadRequestResponse(w, r, fmt.Errorf("Authorization header not found"))
+		err := fmt.Errorf("- Refresh(): authorization header not found")
+
+		glog.V(3).Info(err)
+		BadRequestResponse(w, r, err)
 		return
 	}
+	glog.V(3).Infof("+ Refresh() request: %v", authorization)
+
+	// 1. Get authorization information
 	authorizationBearer := strings.Split(authorization, " ")[1]
 	accessToken := strings.Split(authorizationBearer, ";")[0]
 	accessClaims, errDecodeToken := GetAndDecodeToken(accessToken)
@@ -128,58 +134,61 @@ func (c *accessController) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessUuid := accessClaims["access_uuid"].(string)
-	refreshUuid := refreshClaims["refresh_uuid"].(string)
+	// accessUuid := accessClaims["access_uuid"].(string)
+	// refreshUuid := refreshClaims["refresh_uuid"].(string)
 	userId := uint(accessClaims["user_id"].(float64))
 	role := refreshClaims["role"].(string)
 	username := refreshClaims["username"].(string)
 
-	// Delete the previous Refresh Token
-	deleteAccess, errDelete := c.accessService.DeleteAuth(accessUuid)
-	if errDelete != nil || deleteAccess == 0 { // if any goes wrong
-		ForbiddenResponse(w, r, errDelete)
-	}
-
-	deletedRefesh, errDelete := c.accessService.DeleteAuth(refreshUuid)
-	if errDelete != nil || deletedRefesh == 0 { // if any goes wrong
-		ForbiddenResponse(w, r, errDelete)
-	}
-
-	// Create new pairs of refresh and access tokens
+	//2. Create new pairs of refresh and access tokens
 	tokenDetail, err := c.accessService.CreateToken(userId, role)
 	if err != nil {
 		InternalServerErrorResponse(w, r, err)
 		return
 	}
 
-	// Create new authorization
-	if err := c.accessService.CreateAuth(int(userId), tokenDetail); err != nil {
-		InternalServerErrorResponse(w, r, err)
-		return
-	}
+	// 3. Refresh cached token
+	// Delete the previous Refresh Token
+	// deleteAccess, errDelete := c.accessService.DeleteAuth(accessUuid)
+	// if errDelete != nil || deleteAccess == 0 { // if any goes wrong
+	// 	ForbiddenResponse(w, r, errDelete)
+	// }
 
+	// deletedRefesh, errDelete := c.accessService.DeleteAuth(refreshUuid)
+	// if errDelete != nil || deletedRefesh == 0 { // if any goes wrong
+	// 	ForbiddenResponse(w, r, errDelete)
+	// }
+
+	// if err := c.accessService.CreateAuth(int(userId), tokenDetail); err != nil {
+	// 	InternalServerErrorResponse(w, r, err)
+	// 	return
+	// }
+
+	// 4. Save Access Token in the HTTP Cookie
 	userInfo, err := c.userService.GetByUsername(username)
 	if err != nil {
 		InternalServerErrorResponse(w, r, err)
 		return
 	}
-
-	// fullDomain := r.Header.Get("Origin")
-	// errCookie := SaveHttpCookie(fullDomain, tokenDetail, w)
-	// if errCookie != nil {
-	// 	InternalServerErrorResponse(w, r, err)
-	// 	return
-	// }
-
 	userInfo.AccessToken = tokenDetail.AccessToken
 	userInfo.RefreshToken = tokenDetail.RefreshToken
+
+	// 5. Save Access Token in the HTTP Cookie
+	fullDomain := r.Header.Get("Origin")
+	errCookie := SaveHttpCookie(fullDomain, tokenDetail, w)
+	if errCookie != nil {
+		InternalServerErrorResponse(w, r, err)
+		return
+	}
+
+	// 6. Send the response
 	res = Response{
 		Data:    userInfo,
 		Success: true,
 		Message: "Refresh success",
 	}
 	render.JSON(w, r, res)
-	return
+    glog.V(3).Infof("+ Refresh() response: %v", authorization)
 }
 
 func NewAccessController() AccessController {

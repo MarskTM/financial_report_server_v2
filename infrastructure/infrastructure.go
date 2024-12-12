@@ -9,8 +9,8 @@ import (
 
 	"github.com/go-chi/jwtauth"
 	"github.com/go-redis/redis"
+	"github.com/golang/glog"
 	"github.com/joho/godotenv"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -60,12 +60,6 @@ var (
 	httpSwagger string
 	rootPath    string
 	staticPath  string
-
-	InfoLog *log.Logger
-	ErrLog  *log.Logger
-
-	ZapSugar  *zap.SugaredLogger
-	ZapLogger *zap.Logger
 
 	db         *gorm.DB
 	encodeAuth *jwtauth.JWTAuth
@@ -129,14 +123,14 @@ func loadEnvParameters(version int) {
 		dbUser = getStringEnvParameter(DBUSER, "postgres")
 		dbPassword = getStringEnvParameter(DBPASSWORD, "123456")
 		dbName = getStringEnvParameter(DBNAME, "pnk_intern_db_dev")
-		InfoLog.Println("Environment: LOCALHOST")
+		glog.V(1).Info("Environment: LOCALHOST")
 
 	default:
 		dbHost = getStringEnvParameter(DBHOST, goDotEnvVariable(DBHOST))
 		dbUser = getStringEnvParameter(DBUSER, goDotEnvVariable(DBUSER))
 		dbPassword = getStringEnvParameter(DBPASSWORD, goDotEnvVariable(DBPASSWORD))
 		dbName = getStringEnvParameter(DBNAME, goDotEnvVariable(DBNAME))
-		InfoLog.Println("Environment: Development Default")
+		glog.V(1).Info("Environment: Development Default")
 	}
 
 	privatePath = getStringEnvParameter(PRIVATEPATH, root+"/infrastructure/private.pem")
@@ -173,33 +167,31 @@ func loadEnvParameters(version int) {
 }
 
 func init() {
-	InfoLog = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Llongfile)
-	ErrLog = log.New(os.Stdout, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-	zapSgLogger, _ := zap.NewDevelopment()
-	ZapLogger, _ = zap.NewDevelopment()
-	ZapSugar = zapSgLogger.Sugar()
+	// Thiết lập giá trị mặc định cho các flag của glog
+	_ = flag.Set("log_dir", "./log") // Đường dẫn log mặc định
+	_ = flag.Set("v", "3")           // Verbosity level mặc định
 
 	// Get version ARGS
 	var version int
-	flag.IntVar(&version, "v", 1, "select version dev v1 or dev v2")
+	flag.IntVar(&version, "env", 1, "select version dev v1 or pro v2")
 
 	var initDB bool
 	flag.BoolVar(&initDB, "db", false, "allow recreate model database in postgres")
 
 	flag.Parse()
-	InfoLog.Println("database version: ", version)
+	glog.V(1).Info("database version: ", version)
 
 	loadEnvParameters(version)
 	if err := loadAuthToken(); err != nil {
-		ErrLog.Println("error load auth token: ", err)
+		glog.Error("- error load auth token: ", err)
 	}
 
 	if err := InitRedis(); err != nil {
-		log.Fatal("error initialize redis: ", err)
+		log.Fatal("- error initialize redis: ", err)
 	}
 
 	if err := InitDatabase(initDB); err != nil {
-		ErrLog.Println("error initialize database: ", err)
+		glog.Error("- error initialize database: ", err)
 	}
 }
 

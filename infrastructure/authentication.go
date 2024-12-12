@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 
 	"github.com/go-chi/jwtauth"
+	"github.com/golang/glog"
 )
 
 // Algorithm algorithm define
@@ -19,23 +20,23 @@ func loadAuthToken() error {
 	// Load private key
 	privateReader, err := ioutil.ReadFile(privatePath)
 	if err != nil {
-		InfoLog.Println("NO RSA private pem file")
+		glog.V(1).Info("NO RSA private pem file")
 		return err
 	}
 	privatePem, _ := pem.Decode(privateReader)
 
 	if privatePem.Type != "RSA PRIVATE KEY" {
-		InfoLog.Println("RSA private key is of the wrong type")
+		glog.V(1).Info("RSA private key is of the wrong type")
 	}
 
 	privateKey, err := x509.ParsePKCS1PrivateKey(privatePem.Bytes)
 	if err != nil {
-		ErrLog.Println(err)
+		glog.Error(err)
 	}
 	// Read public key
 	publicReader, err := ioutil.ReadFile(publicPath)
 	if err != nil {
-		InfoLog.Println("No RSA public pem file")
+		glog.V(1).Info("No RSA public pem file")
 		return err
 	}
 	publicPem, _ := pem.Decode(publicReader)
@@ -51,7 +52,7 @@ func RsaEncrypt(decrypt string) (string, error) {
 	// Load public key
 	publicKey, err := ioutil.ReadFile(publicPath)
 	if err != nil {
-		InfoLog.Println("No RSA public pem file")
+		glog.V(1).Info("No RSA public pem file")
 		return "", err
 	}
 	block, _ := pem.Decode(publicKey)
@@ -60,12 +61,12 @@ func RsaEncrypt(decrypt string) (string, error) {
 	}
 	pub, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
-		ErrLog.Println(err)
+		glog.Error(err)
 		return "", err
 	}
 	cipherText, err := rsa.EncryptPKCS1v15(rand.Reader, pub.(*rsa.PublicKey), []byte(decrypt))
 	if err != nil {
-		ErrLog.Println(err)
+		glog.Error(err)
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(cipherText), nil
@@ -75,7 +76,7 @@ func RsaDecrypt(encrypt string) ([]byte, error) {
 	// Load private key
 	privateKey, err := ioutil.ReadFile(privatePath)
 	if err != nil {
-		InfoLog.Println("NO RSA private pem file")
+		glog.V(1).Info("NO RSA private pem file")
 		return nil, err
 	}
 	block, _ := pem.Decode(privateKey)
@@ -84,7 +85,7 @@ func RsaDecrypt(encrypt string) ([]byte, error) {
 	}
 	priv, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		ErrLog.Println(err)
+		glog.Error(err)
 		return nil, err
 	}
 	cipherText, _ := base64.StdEncoding.DecodeString(encrypt)

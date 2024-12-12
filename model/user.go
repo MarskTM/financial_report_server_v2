@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	ID       int32   `json:"id" gorm:"primary_key"`
+	ID       int32  `json:"id" gorm:"primary_key"`
 	Username string `json:"username" gorm:"type:varchar(100);unique"`
 	Password string `json:"password"`
 
@@ -19,8 +19,8 @@ type User struct {
 }
 
 type UserForgotPassword struct {
-	ID        int32           `json:"id" gorm:"primary_key"`
-	UserId    int32           `json:"user_id" gorm:"unique"`
+	ID        int32          `json:"id" gorm:"primary_key"`
+	UserId    int32          `json:"user_id" gorm:"unique"`
 	FogotCode string         `json:"fogot_code"`
 	CreatedAt time.Time      `json:"createdAt" swaggerignore:"true"`
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`
@@ -28,7 +28,7 @@ type UserForgotPassword struct {
 }
 
 type UserResponse struct {
-	ID           int32     `json:"id"`
+	ID           int32    `json:"id"`
 	Role         string   `json:"role"`
 	Username     string   `json:"username"`
 	FullName     string   `json:"fullname"`

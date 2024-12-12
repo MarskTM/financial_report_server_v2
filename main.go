@@ -7,14 +7,19 @@ import (
 
 	"phenikaa/infrastructure"
 	"phenikaa/router"
+
+	"github.com/golang/glog"
 )
 
 func main() {
-	// go run main.go
-	infrastructure.InfoLog.Println("Environment: ", infrastructure.GetEnvironments())
-	infrastructure.InfoLog.Println("Server URL: ", infrastructure.GetHTTPURL())
-	infrastructure.InfoLog.Println("Database name: ", infrastructure.GetDBName())
-	log.Printf("Server running at port: %+v\n", infrastructure.GetAppPort())
+	// go run cron job
+
+	// go run main
+	glog.V(1).Info("Environment: ", infrastructure.GetEnvironments())
+	glog.V(1).Info("Server URL: ", infrastructure.GetHTTPURL())
+	glog.V(1).Info("Database name: ", infrastructure.GetDBName())
+	glog.V(1).Infof("Server running at port: %+v\n", infrastructure.GetAppPort())
+	
 	s := &http.Server{
 		Addr:           ":" + infrastructure.GetAppPort(),
 		Handler:        router.Router(),
@@ -23,4 +28,5 @@ func main() {
 		MaxHeaderBytes: 1 << 30,
 	}
 	log.Fatal(s.ListenAndServe())
+	glog.Flush()
 }
