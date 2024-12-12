@@ -23,14 +23,14 @@ var MapAssociation = map[string]map[string]interface{}{ // Alown preload associa
 		"UserRoles.Role": "",
 	},
 	"roles":    {},
-	"userRole": {},
+	"userRoles": {},
 	"profiles": {
 		"User":                "",
 		"User.UserRoles.Role": "",
 		"Recruitment":         "",
 		"InternShip":          "",
 	},
-	"financialReport": {},
+	"financialReports": {},
 	"companies": {
 		"CompanyStakeholders": "",
 	},

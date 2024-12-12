@@ -35,13 +35,20 @@ func (s *advanceFilterService) Filter(payload model.AdvanceFilterPayload) (inter
 		db = db.Select(payload.SelectColumn)
 	}
 
-	for _, model := range payload.IgnoreAssociation {
-		condition, ok := modelPreload[model]
-		if ok {
-			continue;
+	if len(payload.IgnoreAssociation) > 0 {
+		for _, model := range payload.IgnoreAssociation {
+			condition, ok := modelPreload[model]
+			if ok || model == "all" {
+				continue
+			}
+			db = db.Preload(model, condition)
 		}
-		db = db.Preload(model, condition)
+	} else {
+		for model, condition := range modelPreload {
+			db = db.Preload(model, condition)
+		}
 	}
+
 	// if !payload.IgnoreAssociation {
 	// 	for model, condition := range modelPreload {
 	// 		db = db.Preload(model, condition)
