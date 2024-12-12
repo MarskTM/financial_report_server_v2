@@ -47,7 +47,6 @@ func (c *basicQueryController) Upsert(w http.ResponseWriter, r *http.Request) {
 		Message: "Upsert " + payload.ModelType + "success",
 	}
 	render.JSON(w, r, res)
-	return
 }
 
 // Delete model from database

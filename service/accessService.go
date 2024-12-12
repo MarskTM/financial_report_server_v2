@@ -37,7 +37,7 @@ func (s *accessService) CreateToken(userID uint, role string) (*model.TokenDetai
 
 	var user model.User
 	if userID != 0 {
-		if err = s.db.Where("user_id = ?", userID).Find(&user).Error; err != nil {
+		if err = s.db.Where("id = ?", userID).Find(&user).Error; err != nil {
 			return nil, err
 		}
 		tokenDetail.Username = user.Username

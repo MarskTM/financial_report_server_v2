@@ -11,7 +11,7 @@ type User struct {
 	Username string `json:"username" gorm:"type:varchar(100);unique"`
 	Password string `json:"password"`
 
-	UserRoles *UserRole `json:"user_roles" gorm:"foreignKey:UserID"`
+	UserRoles *UserRole `json:"user_roles" gorm:"foreignKey:UserID; constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	CreatedAt time.Time      `json:"createdAt" swaggerignore:"true"`
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`

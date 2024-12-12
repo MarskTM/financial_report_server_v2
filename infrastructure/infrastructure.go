@@ -169,6 +169,7 @@ func loadEnvParameters(version int) {
 func init() {
 	// Thiết lập giá trị mặc định cho các flag của glog
 	_ = flag.Set("log_dir", "./log") // Đường dẫn log mặc định
+	_ = flag.Set("logtostderr", "true")
 	_ = flag.Set("v", "3")           // Verbosity level mặc định
 
 	// Get version ARGS

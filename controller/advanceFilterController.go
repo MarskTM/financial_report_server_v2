@@ -47,7 +47,6 @@ func (c *advanceFilterController) Filter(w http.ResponseWriter, r *http.Request)
 		Message: "Get " + payload.ModelType + " success",
 	}
 	render.JSON(w, r, res)
-	return
 }
 
 func NewAdvanceFilterController() AdvanceFilterController {

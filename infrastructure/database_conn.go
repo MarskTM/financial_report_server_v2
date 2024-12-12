@@ -52,8 +52,10 @@ func InitDatabase(allowMigrate bool) error {
 			&model.Profile{},            // Thông tin cá nhân
 			&model.UserForgotPassword{}, // Quản lý thông tin quên mật khẩu
 
-			&model.FinancialReport{}, // Báo cáo tài chính
-			&model.BalanceSheet{},    // Cân đối kế toán
+			&model.Company{}, // Thông tin doanh nghiệp
+			
+			// &model.FinancialReport{}, // Báo cáo tài chính
+			// &model.BalanceSheet{},    // Cân đối kế toán
 		)
 		glog.V(1).Info("Done migrating database")
 	}

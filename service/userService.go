@@ -36,7 +36,7 @@ func (s *userService) CheckCredentials(username string, password string) (*model
 	var userResponse *model.UserResponse
 	var user model.User
 
-	if err := s.db.Debug().Where("username = ?", username).First(&user).Error; err != nil {
+	if err := s.db.Debug().Where("username = ?", username).Preload("UserRoles.Role").First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}

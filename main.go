@@ -19,7 +19,7 @@ func main() {
 	glog.V(1).Info("Server URL: ", infrastructure.GetHTTPURL())
 	glog.V(1).Info("Database name: ", infrastructure.GetDBName())
 	glog.V(1).Infof("Server running at port: %+v\n", infrastructure.GetAppPort())
-	
+
 	s := &http.Server{
 		Addr:           ":" + infrastructure.GetAppPort(),
 		Handler:        router.Router(),
@@ -28,5 +28,5 @@ func main() {
 		MaxHeaderBytes: 1 << 30,
 	}
 	log.Fatal(s.ListenAndServe())
-	glog.Flush()
+	// glog.Flush()
 }
