@@ -7,8 +7,8 @@ import (
 )
 
 type CompanyStakeholder struct {
-	ID        int32     `json:"id"`
-	CompanyID int32     `json:"company_id"`
+	ID        int32     `json:"id" gorm:"primary_key"`
+	CompanyID int32     `json:"company_id" gorm:"compnay_id"`
 	Avatar    string    `json:"avatar"`
 	Name      string    `json:"name"`
 	Position  string    `json:"position"`
