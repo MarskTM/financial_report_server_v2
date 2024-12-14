@@ -118,7 +118,7 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 			log.Println("upsert1.11 ============================= ", id)
 
 			payload.Data.(map[string]interface{})["id"] = maxModelId + 1
-			if err := db.Debug().Model(modelType).Create(payload.Data.(map[string]interface{})).Error; err != nil {
+			if err := db.Debug().Table(tableName).Create(payload.Data.(map[string]interface{})).Error; err != nil {
 				return nil, fmt.Errorf("create error: %v", err)
 			}
 
@@ -128,7 +128,7 @@ func (s *basicQueryService) Upsert(payload model.BasicQueryPayload) (interface{}
 
 			log.Println("upsert2.11 ============================= ", id)
 			if ok, _ := utils.InArray(id, listModelId); ok {
-				if err := db.Debug().Model(modelType).Where("id = (?)", id).Updates(payload.Data.(map[string]interface{})).Error; err != nil {
+				if err := db.Debug().Table(tableName).Where("id = (?)", id).Updates(payload.Data.(map[string]interface{})).Error; err != nil {
 					return nil, fmt.Errorf("update error: %v", err)
 				}
 			}
