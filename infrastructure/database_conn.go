@@ -51,14 +51,21 @@ func InitDatabase(allowMigrate bool) error {
 			&model.UserRole{},           // Phân quyền
 			&model.Profile{},            // Thông tin cá nhân
 			&model.UserForgotPassword{}, // Quản lý thông tin quên mật khẩu
+			&model.Document{},           // Thông tin lưu trữ các file media
 
 			&model.Company{},            // Thông tin doanh nghiệp
 			&model.CompanyStakeholder{}, // Thông ban lãnh đạo
+			&model.FinancialReport{},   // Báo cáo tài chính
 
-			// &model.FinancialReport{}, // Báo cáo tài chính
-			// &model.BalanceSheet{},    // Cân đối kế toán
+			// &model.BalanceSheet{},      // Cân đối kế toán
+			// &model.IncomeStatement{},   // Báo cáo doanh thu
+			// &model.CashflowStatement{}, // Báo cáo tài chính tăng trưởng
+
+			// &model.FinancialAnalyzer{}, // Chỉ số tài chính
+
+			&model.UserReport{}, // Báo cáo tài chín đăng bởi người dùng
 		)
-		glog.V(1).Info("Done migrating database")
+		glog.V(1).Info("*** Done! database has been migrated ***")
 	}
 
 	return nil

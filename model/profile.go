@@ -16,6 +16,7 @@ type Profile struct {
 	Phone      string `json:"phone"`
 	Birthdate  string `json:"birthdate"`
 	OtherLinks string `json:"other_links"`
+	Address    string `json:"address"`
 
 	User *User `json:"user" gorm:"foreignKey:UserID"`
 

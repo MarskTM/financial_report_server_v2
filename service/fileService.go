@@ -10,7 +10,7 @@ import (
 type DocumentService interface {
 	ImportBalanceSheet(data model.BalanceSheet) (*model.BalanceSheet, error) 
 	ImportIncomeStatement(data model.IncomeStatement) (*model.IncomeStatement, error)
-	ImportCashFlowStatement(data model.CashFlowStatement) (*model.CashFlowStatement, error)
+	ImportCashFlowStatement(data model.CashflowStatement) (*model.CashflowStatement, error)
 }
 
 func (s *documentService) ImportBalanceSheet(data model.BalanceSheet) (*model.BalanceSheet, error) {
@@ -29,8 +29,8 @@ func (s *documentService) ImportIncomeStatement(data model.IncomeStatement) (*mo
     return &data, nil
 }
 
-func (s *documentService) ImportCashFlowStatement(data model.CashFlowStatement) (*model.CashFlowStatement, error) {
-	err := s.db.Model(&model.CashFlowStatement{}).Create(&data).Error
+func (s *documentService) ImportCashFlowStatement(data model.CashflowStatement) (*model.CashflowStatement, error) {
+	err := s.db.Model(&model.CashflowStatement{}).Create(&data).Error
     if err!= nil {
         return nil, err
     }
