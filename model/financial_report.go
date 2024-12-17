@@ -8,21 +8,11 @@ import (
 
 type FinancialReport struct {
 	// ===================================================== Meta data ============================================================
-	ID         int32 `json:"id" gorm:"primarykey"`
-	CompanyID  int32 `json:"company_id"`
-	DocumentID int32 `json:"document_id"`
-
-	Name     string    `json:"name"`     // Tên báo cáo.
-	Category string    `json:"category"` // Loại hình báo cáo.
-	Date     time.Time `json:"date"`     // Ngày công bố báo cáo.
-	Quarter  string    `json:"quarter"`  // Quý báo cáo
+	ID      int32  `json:"id" gorm:"primarykey"`
+	Quarter string `json:"quarter"` // Quý báo cáo
 
 	// ======================================================= Income statement ==========================================================================
 	// Thu nhập và chi phí từ lãi
-	// InterestAndSimilarIncome   *float64 `json:"interest_and_similar_income"`   // Thu nhập từ lãi và các khoản tương tự
-	// InterestAndSimilarExpenses *float64 `json:"interest_and_similar_expenses"` // Chi phí lãi và các khoản tương tự
-	// NetInterestIncome          *float64 `json:"net_interest_income"`           // Thu nhập lãi thuần
-
 	OperatingInterestIncome    *float64 `json:"operating_interest_income"`     // Thu nhập lãi từ hoạt động kinh doanh
 	OperatingInterestExpenses  *float64 `json:"operating_interest_expenses"`   // Chi phí lãi từ hoạt động kinh doanh
 	NetOperatingInterestIncome *float64 `json:"net_operating_interest_income"` // Thu nhập lãi thuần từ hoạt động kinh doanh
@@ -82,54 +72,51 @@ type FinancialReport struct {
 	CorporateIncomeTaxPaid                      *float64 `json:"corporate_income_tax_paid"`                          // Thuế thu nhập doanh nghiệp đã nộp
 
 	// Biến động tài sản và nợ ngắn hạn
-	DepositsAtStateBank                                                *float64 `json:"deposits_at_state_bank"`                                                      // Tiền gửi tại ngân hàng nhà nước
-	IncreaseDecreaseInDepositsAndLoansToOtherCreditInstitutions        *float64 `json:"increase_decrease_in_deposits_and_loans_to_other_credit"`                     // Biến động tiền gửi và khoản vay tại các tổ chức tín dụng khác
-	IncreaseDecreaseInTradingSecurities                                *float64 `json:"increase_decrease_in_trading_securities"`                                     // Biến động chứng khoán kinh doanh
-	IncreaseDecreaseInDerivativesAndOtherFinancialAssets               *float64 `json:"increase_decrease_in_derivatives_and_other_financial_assets"`                 // Biến động công cụ phái sinh và tài sản tài chính khác
-	IncreaseDecreaseInLoansToCustomers                                 *float64 `json:"increase_decrease_in_loans_to_customers"`                                     // Biến động các khoản cho vay khách hàng
-	IncreaseDecreaseInInterestAndFeeReceivables                        *float64 `json:"increase_decrease_in_interest_and_fee_receivables"`                           // Biến động lãi và phí phải thu
-	IncreaseDecreaseInProvisionFunds                                   *float64 `json:"increase_decrease_in_provision_funds"`                                        // Biến động các quỹ dự phòng
-	IncreaseDecreaseInOtherOperatingAssets                             *float64 `json:"increase_decrease_in_other_operating_assets"`                                 // Biến động các tài sản hoạt động khác
-	IncreaseDecreaseInGovernmentAndStateBankBorrowings                 *float64 `json:"increase_decrease_in_government_and_state_bank_borrowings"`                   // Biến động các khoản vay từ chính phủ và ngân hàng nhà nước
-	IncreaseDecreaseInDepositsAndBorrowingsFromOtherCreditInstitutions *float64 `json:"increase_decrease_in_deposits_and_borrowings_from_other_credit_institutions"` // Biến động tiền gửi và khoản vay từ các tổ chức tín dụng khác
-	IncreaseDecreaseInCustomerDeposits                                 *float64 `json:"increase_decrease_in_customer_deposits"`                                      // Biến động tiền gửi của khách hàng
-	IncreaseDecreaseInDerivativesAndOtherFinancialLiabilities          *float64 `json:"increase_decrease_in_derivatives_and_other_financial_liabilities"`            // Biến động công cụ phái sinh và nợ tài chính khác
-	IncreaseDecreaseInTrustFundAndInvestmentsFromGovernmentAndOthers   *float64 `json:"increase_decrease_in_trust_fund_and_investments_from_government_and_others"`  // Biến động quỹ tín thác và đầu tư từ chính phủ và các bên khác
-	IncreaseDecreaseInIssuedDebtSecurities                             *float64 `json:"increase_decrease_in_issued_debt_securities"`                                 // Biến động công cụ nợ đã phát hành
-	IncreaseDecreaseInInterestAndFeePayables                           *float64 `json:"increase_decrease_in_interest_and_fee_payables"`                              // Biến động lãi và phí phải trả
-	IncreaseDecreaseInOtherOperatingLiabilities                        *float64 `json:"increase_decrease_in_other_operating_liabilities"`                            // Biến động các khoản nợ hoạt động khác
+	DepositsAtStateBank             *float64 `json:"deposits_at_state_bank"`             // Tiền gửi tại ngân hàng nhà nước
+	ChangeDepositsLoansOthers       *float64 `json:"change_deposits_loans_others"`       // Biến động tiền gửi và khoản vay tại các tổ chức tín dụng khác
+	ChangeTradingSecurities         *float64 `json:"change_trading_securities"`          // Biến động chứng khoán kinh doanh
+	ChangeDerivativesAssets         *float64 `json:"change_derivatives_assets"`          // Biến động công cụ phái sinh và tài sản tài chính khác
+	ChangeCustomerLoans             *float64 `json:"change_customer_loans"`              // Biến động các khoản cho vay khách hàng
+	ChangeInterestFeeReceivables    *float64 `json:"change_interest_fee_receivables"`    // Biến động lãi và phí phải thu
+	ChangeProvisionFunds            *float64 `json:"change_provision_funds"`             // Biến động các quỹ dự phòng
+	ChangeOtherAssets               *float64 `json:"change_other_assets"`                // Biến động các tài sản hoạt động khác
+	ChangeGovBorrowings             *float64 `json:"change_gov_borrowings"`              // Biến động các khoản vay chính phủ và ngân hàng nhà nước
+	ChangeDepositsLoansInstitutions *float64 `json:"change_deposits_loans_institutions"` // Biến động tiền gửi và vay từ tổ chức tín dụng khác
+	ChangeCustomerDeposits          *float64 `json:"change_customer_deposits"`           // Biến động tiền gửi của khách hàng
+	ChangeDerivativesLiabilities    *float64 `json:"change_derivatives_liabilities"`     // Biến động công cụ phái sinh và nợ tài chính khác
+	ChangeTrustInvestments          *float64 `json:"change_trust_investments"`           // Biến động quỹ tín thác và đầu tư từ chính phủ và các bên khác
+	ChangeIssuedDebt                *float64 `json:"change_issued_debt"`                 // Biến động công cụ nợ đã phát hành
+	ChangeInterestFeePayables       *float64 `json:"change_interest_fee_payables"`       // Biến động lãi và phí phải trả
+	ChangeOtherLiabilities          *float64 `json:"change_other_liabilities"`           // Biến động các khoản nợ hoạt động khác
 
 	// Lưu chuyển tiền tệ từ hoạt động đầu tư
-	NetCashFlowFromInvestingActivities                     *float64 `json:"net_cash_flow_from_investing_activities"`                          // Lưu chuyển tiền thuần từ hoạt động đầu tư
-	PaymentsForPurchaseOfFixedAssetsAndOtherLongTermAssets *float64 `json:"payments_for_purchase_of_fixed_assets_and_other_long_term_assets"` // Chi trả để mua tài sản cố định và tài sản dài hạn khác
-	ProceedsFromDisposalOfFixedAssets                      *float64 `json:"proceeds_from_disposal_of_fixed_assets"`                           // Thu nhập từ việc bán tài sản cố định
-	PaymentsForDisposalOfFixedAssets                       *float64 `json:"payments_for_disposal_of_fixed_assets"`                            // Chi trả cho việc thanh lý tài sản cố định
-	InvestmentsInOtherEntities                             *float64 `json:"investments_in_other_entities"`                                    // Đầu tư vào các tổ chức khác
-	ProceedsFromDisposalOfInvestmentsInOtherEntities       *float64 `json:"proceeds_from_disposal_of_investments_in_other_entities"`          // Thu nhập từ việc thanh lý đầu tư vào tổ chức khác
-	DividendsAndInterestReceived                           *float64 `json:"dividends_and_interest_received"`                                  // Cổ tức và thu nhập lãi đã nhận
+	NetCashInvesting                *float64 `json:"net_cash_investing"`                 // Lưu chuyển tiền thuần từ đầu tư
+	PaymentsForFixedAssets          *float64 `json:"payments_for_fixed_assets"`          // Chi trả mua tài sản cố định
+	ProceedsFromFixedAssets         *float64 `json:"proceeds_from_fixed_assets"`         // Thu nhập từ bán tài sản cố định
+	PaymentsForAssetDisposals       *float64 `json:"payments_for_asset_disposals"`       // Chi trả thanh lý tài sản cố định
+	InvestmentsInEntities           *float64 `json:"investments_in_entities"`            // Đầu tư vào tổ chức khác
+	ProceedsFromInvestmentDisposals *float64 `json:"proceeds_from_investment_disposals"` // Thu nhập từ thanh lý đầu tư
+	DividendsInterestReceived       *float64 `json:"dividends_interest_received"`        // Cổ tức và thu nhập lãi đã nhận
 
 	// Lưu chuyển tiền tệ từ hoạt động tài chính
-	NetCashFlowFromFinancingActivities                    *float64 `json:"net_cash_flow_from_financing_activities"`                        // Lưu chuyển tiền thuần từ hoạt động tài chính
-	ProceedsFromIssuanceOfSharesAndCapitalContributions   *float64 `json:"proceeds_from_issuance_of_shares_and_capital_contributions"`     // Thu nhập từ phát hành cổ phiếu và góp vốn
-	ProceedsFromIssuanceOfLongTermDebtSecuritiesAndLoans  *float64 `json:"proceeds_from_issuance_of_long_term_debt_securities_and_loans"`  // Thu nhập từ phát hành công cụ nợ dài hạn và vay
-	PaymentsForSettlementOfLongTermDebtSecuritiesAndLoans *float64 `json:"payments_for_settlement_of_long_term_debt_securities_and_loans"` // Chi trả nợ dài hạn và công cụ nợ
-	DividendsPaid                                         *float64 `json:"dividends_paid"`                                                 // Cổ tức đã chi trả
+	NetCashFinancing          *float64 `json:"net_cash_financing"`           // Lưu chuyển tiền thuần từ tài chính
+	ProceedsFromSharesCapital *float64 `json:"proceeds_from_shares_capital"` // Thu từ phát hành cổ phiếu và góp vốn
+	ProceedsFromLongTermDebt  *float64 `json:"proceeds_from_long_term_debt"` // Thu từ phát hành nợ dài hạn
+	PaymentsForLongTermDebt   *float64 `json:"payments_for_long_term_debt"`  // Chi trả nợ dài hạn
+	DividendsPaid             *float64 `json:"dividends_paid"`               // Cổ tức đã chi trả
 
 	// Tổng hợp lưu chuyển tiền tệ
-	NetIncreaseDecreaseInCashAndCashEquivalents *float64 `json:"net_increase_decrease_in_cash_and_cash_equivalents"` // Biến động thuần tiền và tương đương tiền
-	CashAndCashEquivalentsAtBeginningOfPeriod   *float64 `json:"cash_and_cash_equivalents_at_beginning_of_period"`   // Tiền và tương đương tiền đầu kỳ
-	EffectOfExchangeRateFluctuations            *float64 `json:"effect_of_exchange_rate_fluctuations"`               // Ảnh hưởng của biến động tỷ giá hối đoái
-	CashAndCashEquivalentsAtEndOfPeriod         *float64 `json:"cash_and_cash_equivalents_at_end_of_period"`         // Tiền và tương đương tiền cuối kỳ
+	NetChangeCashEquivalents *float64 `json:"net_change_cash_equivalents"` // Biến động thuần tiền và tương đương tiền
+	CashEquivalentsAtStart   *float64 `json:"cash_equivalents_at_start"`   // Tiền và tương đương tiền đầu kỳ
+	ExchangeRateEffect       *float64 `json:"exchange_rate_effect"`        // Ảnh hưởng của biến động tỷ giá hối đoái
+	CashEquivalentsAtEnd     *float64 `json:"cash_equivalents_at_end"`     // Tiền và tương đương tiền cuối kỳ
 
 	// ================================================================= Balance Sheet =================================================================
 	// Tổng tài sản
-	// TotalAssets *float64 `json:"total_assets"` // Tổng tài sản
 	TotalCompanyAssets *float64 `json:"total_company_assets"` // Tổng tài sản
 
 	// Tiền mặt và tương đương tiền
-	CashGoldSilver *float64 `json:"cash_gold_silver"` // Tiền mặt, vàng, bạc
-	// DepositsAtStateBank          *float64 `json:"deposits_at_state_bank"`          // Tiền gửi tại ngân hàng nhà nước
-	// DepositsAtCreditInstitutions *float64 `json:"deposits_at_credit_institutions"` // Tiền gửi tại các tổ chức tín dụng
+	CashGoldSilver            *float64 `json:"cash_gold_silver"`            // Tiền mặt, vàng, bạc
 	StateBankDeposits         *float64 `json:"state_bank_deposits"`         // Tiền gửi tại ngân hàng nhà nước
 	CreditInstitutionDeposits *float64 `json:"credit_institution_deposits"` // Tiền gửi tại các tổ chức tín dụng
 
@@ -163,7 +150,6 @@ type FinancialReport struct {
 	TotalLiabilitiesAndEquity *float64 `json:"total_liabilities_and_equity"` // Tổng nợ phải trả và vốn chủ sở hữu
 
 	// Nợ phải trả
-	// TotalLiabilities                        *float64 `json:"total_liabilities"`                           // Tổng nợ phải trả
 	CompanyLiabilities *float64 `json:"company_liabilities"` // Tổng nợ
 
 	GovernmentDebtsAndStateBank             *float64 `json:"government_debts_and_state_bank"`             // Nợ chính phủ và ngân hàng nhà nước

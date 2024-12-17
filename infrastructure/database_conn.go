@@ -55,7 +55,7 @@ func InitDatabase(allowMigrate bool) error {
 
 			&model.Company{},            // Thông tin doanh nghiệp
 			&model.CompanyStakeholder{}, // Thông ban lãnh đạo
-			&model.FinancialReport{},   // Báo cáo tài chính
+			&model.FinancialReport{},    // Báo cáo tài chính
 
 			// &model.BalanceSheet{},      // Cân đối kế toán
 			// &model.IncomeStatement{},   // Báo cáo doanh thu
@@ -63,7 +63,8 @@ func InitDatabase(allowMigrate bool) error {
 
 			// &model.FinancialAnalyzer{}, // Chỉ số tài chính
 
-			&model.UserReport{}, // Báo cáo tài chín đăng bởi người dùng
+			&model.UserReport{},    // Dư liệu báo cáo nội bộ, đăng bởi người dùng.
+			&model.CompanyReport{}, // Báo cáo công khai, do quản trị viện hệ thông đăng tải.
 		)
 		glog.V(1).Info("*** Done! database has been migrated ***")
 	}
