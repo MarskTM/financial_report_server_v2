@@ -8,8 +8,10 @@ import (
 
 type FinancialReport struct {
 	// ===================================================== Meta data ============================================================
-	ID      int32  `json:"id" gorm:"primarykey"`
-	Quarter string `json:"quarter"` // Quý báo cáo
+	ID              int32  `json:"id" gorm:"primarykey"`
+	UserReportID    int32  `json:"user_report_id"`
+	CompanyReportID int32  `json:"company_report_id"`
+	Quarter         string `json:"quarter"` // Quý báo cáo
 
 	// ======================================================= Income statement ==========================================================================
 	// Thu nhập và chi phí từ lãi
@@ -211,6 +213,19 @@ type FinancialReport struct {
 	// Nhóm chỉ số Rủi ro
 	RiskReserveToLoans         *float64 `json:"risk_reserve_to_loans"`          // Dự phòng rủi ro tín dụng/Tổng dư nợ
 	EarningAssetsToTotalAssets *float64 `json:"earning_assets_to_total_assets"` // Tài sản Có sinh lãi/Tổng tài sản Có
+
+	// fix =================================================================
+	CustomerLoans          *float64 `json:"customer_loans"`           // Tên giữ nguyên
+	ProvisionCustomerLoans *float64 `json:"provision_customer_loans"` // Trường mới thêm
+
+	CorporateIncomeTaxPaidAgain              *float64 `json:"corporate_income_tax_paid_again"`              // Trường mới thêm
+	PaymentsFromCreditInstitutionFunds       *float64 `json:"payments_from_credit_institution_funds"`       // Trường mới thêm
+	ReceiptsFromBadDebtRecoveries            *float64 `json:"receipts_from_bad_debt_recoveries"`            // Trường mới thêm
+	PaymentsForInvestmentProperties          *float64 `json:"payments_for_investment_properties"`           // Trường mới thêm
+	ProceedsFromInvestmentPropertiesDisposal *float64 `json:"proceeds_from_investment_properties_disposal"` // Trường mới thêm
+	PaymentsForInvestmentPropertiesDisposal  *float64 `json:"payments_for_investment_properties_disposal"`  // Trường mới thêm
+	PaymentsForPurchaseOfTreasuryShares      *float64 `json:"payments_for_purchase_of_treasury_shares"`     // Trường mới thêm
+	ProceedsFromSaleOfTreasuryShares         *float64 `json:"proceeds_from_sale_of_treasury_shares"`        // Trường mới thêm
 
 	// IncomeStatement   IncomeStatement   `json:"income_statement" gorm:"foreignKey:ReportID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	// CashFlowStatement CashflowStatement `json:"cash_flow" gorm:"foreignKey:ReportID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`

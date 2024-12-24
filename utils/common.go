@@ -3,6 +3,8 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -78,4 +80,33 @@ func MapDataToStruct(data map[string]interface{}, target interface{}, tag string
 	}
 
 	return nil
+}
+
+// ConvertToInt32 nhận một giá trị bất kỳ và cố gắng chuyển đổi nó về kiểu int32
+func ConvertToInt32(value interface{}) (int32, error) {
+	switch v := value.(type) {
+	case int:
+		return int32(v), nil
+	case int32:
+		return v, nil
+	case int64:
+		if v > int64(int32(^uint32(0)>>1)) || v < int64(-int32(^uint32(0)>>1)-1) {
+			return 0, errors.New("value out of range for int32")
+		}
+		return int32(v), nil
+	case int8:
+		return int32(v), nil
+	case float32:
+		if v > float32(int32(^uint32(0)>>1)) || v < float32(-int32(^uint32(0)>>1)-1) {
+			return 0, errors.New("value out of range for int32")
+		}
+		return int32(v), nil
+	case float64:
+		if v > float64(int32(^uint32(0)>>1)) || v < float64(-int32(^uint32(0)>>1)-1) {
+			return 0, errors.New("value out of range for int32")
+		}
+		return int32(v), nil
+	default:
+		return 0, fmt.Errorf("unsupported type: %s", reflect.TypeOf(value).String())
+	}
 }

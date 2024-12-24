@@ -1,7 +1,7 @@
 version: "3.3"
 services:
   api:
-    image: marsksenior/my-project:intern-backend
+    image: marsksenior/my-project:financial-report-be
     build:
       context: . # Use an image built from the specified dockerfile in the current directory.
       dockerfile: Dockerfile
