@@ -32,6 +32,7 @@ type Company struct {
 	OutstandingShares    float64   `json:"outstanding_shares"`     // Khối lượng cổ phiếu đang lưu hành
 
 	CompanyStakeholders []CompanyStakeholder `json:"company_stakeholder" gorm:"foreignKey:CompanyID"`
+	CompanyReport       *CompanyReport       `json:"company_report" gorm:"foreignKey:CompanyID"`
 
 	CreatedAt time.Time      `json:"created_at" swaggerignore:"true"`     // Thời gian tạo
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true" gorm:"index"` // Thời gian xóa (soft delete)

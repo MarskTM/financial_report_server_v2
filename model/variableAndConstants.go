@@ -35,6 +35,7 @@ var MapAssociation = map[string]map[string]interface{}{ // Alown preload associa
 	"financialReports": {},
 	"companies": {
 		"CompanyStakeholders": "",
+		"CompanyReport": "",
 	},
 	"companyStakeholders": {},
 	"userReports": {
