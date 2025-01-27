@@ -15,6 +15,7 @@ type UserController interface {
 	ChangePassowrd(w http.ResponseWriter, r *http.Request)
 	ForgotPassword(w http.ResponseWriter, r *http.Request)
 	CheckEmailExact(w http.ResponseWriter, r *http.Request)
+	GetAllUsers(w http.ResponseWriter, r *http.Request)
 }
 
 type userController struct {
@@ -170,6 +171,28 @@ func (c *userController) CheckEmailExact(w http.ResponseWriter, r *http.Request)
 	}
 	render.JSON(w, r, res)
 	return
+}
+
+// @Summary Get all users
+// @Description Get all users
+// @Tags Admin
+// @Produce json
+func (c *userController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
+	var res *Response
+	var users []*model.UserSystemResponse
+
+	users, err := c.userService.GetAllUsers()
+	if err != nil {
+		InternalServerErrorResponse(w, r, err)
+		return
+	}
+
+	res = &Response{
+		Data:    users,
+		Success: true,
+		Message: "Get all users success",
+	}
+	render.JSON(w, r, res)
 }
 
 func NewUserController() UserController {

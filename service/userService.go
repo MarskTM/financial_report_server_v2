@@ -25,6 +25,7 @@ type UserService interface {
 	ChangePassword(payload model.ChangePasswordPayload) error
 	ForgotPassword(payload model.ForgotPasswordPayload) error
 	CheckEmailExact(username string) error
+	GetAllUsers() ([]*model.UserSystemResponse, error)
 }
 
 type userService struct {
@@ -261,6 +262,34 @@ func (s *userService) CheckEmailExact(email string) error {
 		}
 	}
 	return nil
+}
+
+func (s *userService) GetAllUsers() ([]*model.UserSystemResponse, error) {
+	var users []model.User
+	if err := s.db.Preload("UserRoles.Role").Preload("Profile").Find(&users).Error; err != nil {
+		return nil, fmt.Errorf("get all users error: %v", err)
+	}
+
+	var userResponses []*model.UserSystemResponse
+	for _, User := range users {
+		userSystem := &model.UserSystemResponse{
+			ID:       User.ID,
+			Username: User.Username,
+			Role:     User.UserRoles.Role.Type,
+			FullName: User.Profile.FirstName + " " + User.Profile.FirstName,
+		}
+
+		if User.UserRoles.Role.Code == "Banned" {
+			userSystem.IsBaned = true
+		} else {
+			userSystem.IsBaned = false
+		}
+
+		userResponses = append(userResponses, userSystem)
+
+
+	}
+	return userResponses, nil
 }
 
 // Ở đấy hàm NewUserService() trả về một interface UserService

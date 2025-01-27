@@ -12,6 +12,7 @@ type User struct {
 	Password string `json:"password"`
 
 	UserRoles *UserRole `json:"user_roles" gorm:"foreignKey:UserID; constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Profile   *Profile  `json:"profile"`
 
 	CreatedAt time.Time      `json:"createdAt" swaggerignore:"true"`
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`
@@ -35,4 +36,15 @@ type UserResponse struct {
 	Profile      *Profile `json:"profile"`
 	AccessToken  string   `json:"access_token"`
 	RefreshToken string   `json:"refresh_token"`
+}
+
+type UserSystemResponse struct {
+	ID        int32     `json:"id"`
+	Username  string    `json:"username"`
+	FullName  string    `json:"fullname"`
+	Role      string    `json:"role"`
+	IsBaned   bool      `json:"is_banned"`
+	CreatedAt time.Time `json:"createdAt" swaggerignore:"true"`
+	OnlineAt  time.Time `json:"updatedAt" swaggerignore:"true"`
+	Profile   *Profile  `json:"profile"`
 }

@@ -10,6 +10,7 @@ type AdvanceFilterPayload struct {
 	IsPaginateDB      bool           `json:"isPaginateDB"`
 	QuerySearch       string         `json:"querySearch"`
 	SelectColumn      pq.StringArray `json:"selectColumn"`
+	Sort              string         `json:"sort"`
 }
 
 type BasicQueryPayload struct {

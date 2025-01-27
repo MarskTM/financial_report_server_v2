@@ -27,6 +27,12 @@ func (s *advanceFilterService) Filter(payload model.AdvanceFilterPayload) (inter
 		query = "id > 0"
 	}
 
+	if payload.Sort != "" {
+        db = db.Order("id ASC")
+    } else {
+        db = db.Order("id DESC")
+    }
+
 	if payload.IsPaginateDB {
 		db = db.Limit(payload.PageSize).Offset((payload.Page - 1) * payload.PageSize) // This offset to calculate the offset of the first row returned
 	}
