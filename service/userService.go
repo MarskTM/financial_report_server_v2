@@ -20,7 +20,8 @@ type UserService interface {
 	CheckCredentials(username string, password string) (*model.UserResponse, error)
 	GetByUsername(username string) (*model.UserResponse, error)
 	CreateUser(newUser model.RegisterPayload) (*model.User, error)
-	BanUser(username string) error
+	UpdateUserState(userId int32, state bool) error
+	UpdateUserRole(listUser []model.UpdateUserStatePayload) error
 	ResetPassword(username string) error
 	ChangePassword(payload model.ChangePasswordPayload) error
 	ForgotPassword(payload model.ForgotPasswordPayload) error
@@ -182,11 +183,50 @@ func (s *userService) ForgotPassword(payload model.ForgotPasswordPayload) error 
 	return nil
 }
 
-func (s *userService) BanUser(username string) error {
-	if err := s.db.Model(&model.User{}).Where("username = ?", username).
-		Update("active", false).Error; err != nil {
+func (s *userService) UpdateUserState(userId int32, state bool) error {
+	if err := s.db.Model(&model.UserRole{}).Where("user_id = ?", userId).
+		Update("active", state).Error; err != nil {
 		return err
 	}
+	return nil
+}
+
+func (s *userService) UpdateUserRole(listUser []model.UpdateUserStatePayload) error {
+
+	glog.V(3).Info("UpdateUserRole started")
+	var roles []model.Role
+	if err := s.db.Find(&roles).Error; err != nil {
+		glog.V(3).Info("UpdateUserRole ERROR: %v", err)
+		return err
+	}
+
+	glog.V(3).Info("UpdateUserRole started2")
+	var listUserUpdate []model.UserRole
+	for _, user := range listUser {
+		roleId := int32(0)
+		for _, role := range roles {
+			if role.Code == user.Role {
+				roleId = role.ID
+				break
+			}
+		}
+		if roleId == 0 {
+			glog.V(3).Info("UpdateUserRole ERROR: User: %d - Role not exist: %s", user.ID, user.Role)
+			continue
+		}
+		listUserUpdate = append(listUserUpdate, model.UserRole{
+			UserID: user.ID,
+			RoleID: roleId,
+		})
+	}
+
+	// update roles
+	glog.V(3).Info("UpdateUserRole started3")
+	if err := s.db.Debug().Model(&model.UserRole{}).Save(listUserUpdate).Error; err != nil {
+		glog.V(3).Info("UpdateUserRole ERROR: %v", err)
+		return err
+	}
+
 	return nil
 }
 
@@ -279,15 +319,13 @@ func (s *userService) GetAllUsers() ([]*model.UserSystemResponse, error) {
 			FullName: User.Profile.FirstName + " " + User.Profile.FirstName,
 		}
 
-		if User.UserRoles.Role.Code == "Banned" {
+		if !User.UserRoles.Active {
 			userSystem.IsBaned = true
 		} else {
 			userSystem.IsBaned = false
 		}
 
 		userResponses = append(userResponses, userSystem)
-
-
 	}
 	return userResponses, nil
 }

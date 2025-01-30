@@ -16,6 +16,8 @@ type UserController interface {
 	ForgotPassword(w http.ResponseWriter, r *http.Request)
 	CheckEmailExact(w http.ResponseWriter, r *http.Request)
 	GetAllUsers(w http.ResponseWriter, r *http.Request)
+	UpdateUserState(w http.ResponseWriter, r *http.Request)
+	UpdateUserRole(w http.ResponseWriter, r *http.Request)
 }
 
 type userController struct {
@@ -193,6 +195,48 @@ func (c *userController) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 		Message: "Get all users success",
 	}
 	render.JSON(w, r, res)
+}
+
+func (c *userController) UpdateUserState(w http.ResponseWriter, r *http.Request) {
+	var res *Response
+	var payload model.UpdateUserStatePayload
+
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		BadRequestResponse(w, r, err)
+		return
+	}
+
+	if err := c.userService.UpdateUserState(payload.ID, payload.IsActive); err != nil {
+		InternalServerErrorResponse(w, r, err)
+		return
+	}
+
+	res = &Response{
+		Success: true,
+		Message: "Update user state success",
+	}
+	render.JSON(w, r, res)
+}
+
+func (c *userController) UpdateUserRole(w http.ResponseWriter, r *http.Request) {
+	var res *Response
+    var payload []model.UpdateUserStatePayload
+
+    if err := json.NewDecoder(r.Body).Decode(&payload); err!= nil {
+        BadRequestResponse(w, r, err)
+        return
+    }
+
+    if err := c.userService.UpdateUserRole(payload); err!= nil {
+        InternalServerErrorResponse(w, r, err)
+        return
+    }
+
+    res = &Response{
+        Success: true,
+        Message: "Update user role success",
+    }
+    render.JSON(w, r, res)
 }
 
 func NewUserController() UserController {

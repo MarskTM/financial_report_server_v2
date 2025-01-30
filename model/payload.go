@@ -70,3 +70,9 @@ type ForgotPasswordPayload struct {
 type EmailForgotPayload struct {
 	Email string `json:"email"`
 }
+
+type UpdateUserStatePayload struct {
+	ID       int32  `json:"id"`
+	IsActive bool   `json:"isActive"`
+	Role     string `json:"role"`
+}

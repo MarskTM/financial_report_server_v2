@@ -78,6 +78,8 @@ func Router() http.Handler {
 				userRouter.Put("/reset-password", userController.ResetPassword)
 				userRouter.Put("/change-password", userController.ChangePassowrd)
 				userRouter.Get("/all", userController.GetAllUsers)
+				userRouter.Put("/update-state", userController.UpdateUserState)
+				userRouter.Put("/update-role", userController.UpdateUserRole)
 			})
 
 			protectRouter.Route("/basic-query", func(accessRouter chi.Router) {
