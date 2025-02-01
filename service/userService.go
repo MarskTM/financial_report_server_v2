@@ -8,6 +8,7 @@ import (
 	"phenikaa/model"
 	"phenikaa/utils"
 	"phenikaa/utils/emailTemplate"
+	"strings"
 	"text/template"
 
 	"github.com/golang/glog"
@@ -116,10 +117,21 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 			return err
 		}
 
+		// take fisrt name form payload
+		strArr := strings.Split(newUser.FullName, " ")
+		firstName := strings.Join(strArr[0:len(strArr)-1], " ")
+
+		var lastName string
+		if len(strArr) > 1 {
+            lastName = strings.Join(strArr[len(strArr)-1:], " ")
+        } else {
+            lastName = ""
+        }
+
 		if err := s.db.Model(&model.Profile{}).Create(&model.Profile{
 			UserID:    user.ID,
-			FirstName: newUser.FirstName,
-			LastName:  newUser.LastName,
+			FirstName: firstName,
+			LastName:  lastName,
 			Email:     newUser.Email,
 			Phone:     newUser.Phone,
 		}).Error; err != nil {

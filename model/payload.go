@@ -47,13 +47,12 @@ type LoginPayload struct {
 }
 
 type RegisterPayload struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	Email     string `json:"email"`
-	Birthday  string `json:"birthday"`
-	Phone     string `json:"phone"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Email    string `json:"email"`
+	Birthday string `json:"birthday"`
+	Phone    string `json:"phone"`
+	FullName string `json:"fullName"`
 }
 
 type ChangePasswordPayload struct {
