@@ -35,7 +35,7 @@ func (s *advanceFilterService) Filter(payload model.AdvanceFilterPayload) (inter
 
 	if payload.IsPaginateDB {
 		db = db.Limit(payload.PageSize).Offset((payload.Page - 1) * payload.PageSize) // This offset to calculate the offset of the first row returned
-	}
+	}	
 
 	if len(payload.SelectColumn) > 0 {
 		db = db.Select(payload.SelectColumn)

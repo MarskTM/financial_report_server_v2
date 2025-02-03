@@ -123,10 +123,10 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 
 		var lastName string
 		if len(strArr) > 1 {
-            lastName = strings.Join(strArr[len(strArr)-1:], " ")
-        } else {
-            lastName = ""
-        }
+			lastName = strings.Join(strArr[len(strArr)-1:], " ")
+		} else {
+			lastName = ""
+		}
 
 		if err := s.db.Model(&model.Profile{}).Create(&model.Profile{
 			UserID:    user.ID,
@@ -138,7 +138,7 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 			return err
 		}
 
-		if err := s.db.Model(&model.User{}).Where("id = ?", user.ID).Preload("UserRoles.Role").First(&userInfo).Error; err != nil {
+		if err := s.db.Model(&model.User{}).Where("id = ?", user.ID).Preload("UserRoles.Role").Preload("Profile").First(&userInfo).Error; err != nil {
 			return err
 		}
 
@@ -148,7 +148,6 @@ func (s *userService) CreateUser(newUser model.RegisterPayload) (*model.User, er
 	}
 
 	// Thông tin người dùng
-	userInfo.Password = "********"
 	return &userInfo, nil
 }
 

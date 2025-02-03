@@ -7,6 +7,7 @@ import (
 	"phenikaa/service"
 
 	"github.com/go-chi/render"
+	"github.com/golang/glog"
 )
 
 type UserController interface {
@@ -21,7 +22,8 @@ type UserController interface {
 }
 
 type userController struct {
-	userService service.UserService
+	accessService service.AccessService
+	userService   service.UserService
 }
 
 // @Summary Register
@@ -41,19 +43,52 @@ func (c *userController) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 1. create new user profile
 	newUser, err := c.userService.CreateUser(payload)
 	if err != nil {
 		InternalServerErrorResponse(w, r, err)
 		return
 	}
 
+	// 2. Generate the authen token
+	response := &model.UserResponse{
+		ID:       newUser.ID,
+		Role:     newUser.UserRoles.Role.Type,
+		Username: newUser.Username,
+		FullName: newUser.Profile.FirstName + " " + newUser.Profile.LastName,
+		Profile:  newUser.Profile,
+	}
+
+	tokenDetail, err := c.accessService.CreateToken(uint(newUser.ID), newUser.UserRoles.Role.Code)
+	if err != nil {
+		InternalServerErrorResponse(w, r, err)
+		return
+	}
+	response.AccessToken = tokenDetail.AccessToken
+	response.RefreshToken = tokenDetail.RefreshToken
+
+	// 3. Cache Access Token
+	// if err := c.accessService.CreateAuth(int(userInfo.ID), tokenDetail); err != nil {
+	// 	InternalServerErrorResponse(w, r, err)
+	// 	return
+	// }
+
+	// 4. Save Access Token in the HTTP Cookie
+	fullDomain := r.Header.Get("Origin")
+	errCookie := SaveHttpCookie(fullDomain, tokenDetail, w)
+	if errCookie != nil {
+		InternalServerErrorResponse(w, r, err)
+		return
+	}
+
+	// 5. Send the response
 	res = &Response{
-		Data:    newUser,
+		Data:    response,
 		Success: true,
 		Message: "Register success",
 	}
+	glog.V(3).Infof("+ Register() response: %v", payload)
 	render.JSON(w, r, res)
-	return
 }
 
 // @Summary change password
@@ -220,27 +255,28 @@ func (c *userController) UpdateUserState(w http.ResponseWriter, r *http.Request)
 
 func (c *userController) UpdateUserRole(w http.ResponseWriter, r *http.Request) {
 	var res *Response
-    var payload []model.UpdateUserStatePayload
+	var payload []model.UpdateUserStatePayload
 
-    if err := json.NewDecoder(r.Body).Decode(&payload); err!= nil {
-        BadRequestResponse(w, r, err)
-        return
-    }
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		BadRequestResponse(w, r, err)
+		return
+	}
 
-    if err := c.userService.UpdateUserRole(payload); err!= nil {
-        InternalServerErrorResponse(w, r, err)
-        return
-    }
+	if err := c.userService.UpdateUserRole(payload); err != nil {
+		InternalServerErrorResponse(w, r, err)
+		return
+	}
 
-    res = &Response{
-        Success: true,
-        Message: "Update user role success",
-    }
-    render.JSON(w, r, res)
+	res = &Response{
+		Success: true,
+		Message: "Update user role success",
+	}
+	render.JSON(w, r, res)
 }
 
 func NewUserController() UserController {
 	return &userController{
-		userService: service.NewUserService(),
+		accessService: service.NewAccessService(),
+		userService:   service.NewUserService(),
 	}
 }
