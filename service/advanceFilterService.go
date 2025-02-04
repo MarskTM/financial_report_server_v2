@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"phenikaa/infrastructure"
 	"phenikaa/model"
+
+	"github.com/golang/glog"
+	"github.com/iancoleman/strcase"
 )
 
 type AdvanceFilter interface {
@@ -28,14 +31,14 @@ func (s *advanceFilterService) Filter(payload model.AdvanceFilterPayload) (inter
 	}
 
 	if payload.Sort != "" {
-        db = db.Order("id ASC")
-    } else {
-        db = db.Order("id DESC")
-    }
+		db = db.Order("id ASC")
+	} else {
+		db = db.Order("id DESC")
+	}
 
 	if payload.IsPaginateDB {
 		db = db.Limit(payload.PageSize).Offset((payload.Page - 1) * payload.PageSize) // This offset to calculate the offset of the first row returned
-	}	
+	}
 
 	if len(payload.SelectColumn) > 0 {
 		db = db.Select(payload.SelectColumn)
@@ -55,11 +58,8 @@ func (s *advanceFilterService) Filter(payload model.AdvanceFilterPayload) (inter
 		}
 	}
 
-	// if !payload.IgnoreAssociation {
-	// 	for model, condition := range modelPreload {
-	// 		db = db.Preload(model, condition)
-	// 	}
-	// }
+	var tableName = strcase.ToSnake(payload.ModelType)
+	glog.V(3).Infof("ModelName: %s", tableName)
 
 	if err := db.Debug().Model(modelType).Where(query).Find(&modelType).Error; err != nil {
 		return nil, err

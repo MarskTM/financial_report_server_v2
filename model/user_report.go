@@ -15,7 +15,7 @@ type UserReport struct {
 	Category string    `json:"category"` // Loại hình báo cáo.
 	Date     time.Time `json:"date"`     // Ngày công bố báo cáo.
 
-	Reports   []FinancialReport `json:"reports" gorm:"foreignKey:UserReportID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Reports  []FinancialReport `json:"reports" gorm:"foreignKey:UserReportID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Document Document          `json:"document"  gorm:"foreignKey:DocumentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 
 	CreatedAt time.Time      `json:"createdAt" swaggerignore:"true"`
