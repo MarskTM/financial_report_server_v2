@@ -18,7 +18,7 @@ type UserReport struct {
 	Reports  []FinancialReport `json:"reports" gorm:"foreignKey:UserReportID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	Document Document          `json:"document"  gorm:"foreignKey:DocumentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 
-	CreatedAt time.Time      `json:"createdAt" swaggerignore:"true"`
+	CreatedAt time.Time      `json:"created_at" swaggerignore:"true"`
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`
-	UpdatedAt time.Time      `json:"updatedAt" swaggerignore:"true"`
+	UpdatedAt time.Time      `json:"updated_at" swaggerignore:"true"`
 }

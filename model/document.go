@@ -13,8 +13,8 @@ type Document struct {
 	Cdn         string `json:"cdn"`
 	Description string `json:"description"`
 
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
+	CreatedAt time.Time      `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt time.Time      `json:"updated_at" gorm:"autoCreateTime"`
 	DeletedAt gorm.DeletedAt `json:"-"`
 }
 

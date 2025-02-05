@@ -92,14 +92,15 @@ func Router() http.Handler {
 			})
 
 			protectRouter.Route("/financial-report", func(financial chi.Router) {
-				financial.Post("/import", documentController.ImportReportData)
+				financial.Post("/upload", documentController.ImportReportData)
+				financial.Post("/export", documentController.ExportReportData)
 			})
 
 		})
 
 		router.Group(func(protectedRoute chi.Router) {
-			fs := http.StripPrefix("/api/v1/pnk_intern_storage", http.FileServer(http.Dir(infrastructure.GetRootPath()+"/"+infrastructure.GetStoragePath())))
-			router.Get("/pnk_intern_storage/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fs := http.StripPrefix("/api/v1/cdn", http.FileServer(http.Dir(infrastructure.GetRootPath()+"/"+infrastructure.GetStoragePath())))
+			router.Get("/cdn/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				fs.ServeHTTP(w, r)
 			}))
 		})
