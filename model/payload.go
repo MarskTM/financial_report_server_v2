@@ -75,3 +75,9 @@ type UpdateUserStatePayload struct {
 	IsActive bool   `json:"isActive"`
 	Role     string `json:"role"`
 }
+
+type MediaData struct {
+	ID       int32  `json:"id"`
+	FileName string `json:"fileName"`
+	FilePath string `json:"filePath"`
+}

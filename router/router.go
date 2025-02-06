@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+	"github.com/golang/glog"
 
 	"github.com/go-chi/render"
 
@@ -94,16 +95,16 @@ func Router() http.Handler {
 			protectRouter.Route("/financial-report", func(financial chi.Router) {
 				financial.Post("/upload", documentController.ImportReportData)
 				financial.Post("/export", documentController.ExportReportData)
+				financial.Delete("/delete", documentController.DeleteHistoryReport)
 			})
 
-		})
-
-		router.Group(func(protectedRoute chi.Router) {
-			fs := http.StripPrefix("/api/v1/cdn", http.FileServer(http.Dir(infrastructure.GetRootPath()+"/"+infrastructure.GetStoragePath())))
-			router.Get("/cdn/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				fs.ServeHTTP(w, r)
-			}))
+			// Serve static files from the media directory
+			fullpath := infrastructure.GetRootPath() + "/" + infrastructure.GetStoragePath()
+			glog.V(1).Info("Full path: ", fullpath)
+			fs := http.StripPrefix("/api/v1/media/", http.FileServer(http.Dir(fullpath)))
+			protectRouter.Handle("/media/*", fs)
 		})
 	})
+
 	return r
 }

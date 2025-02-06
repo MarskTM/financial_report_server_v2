@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -18,12 +19,17 @@ import (
 type DocumentController interface {
 	ImportReportData(w http.ResponseWriter, r *http.Request)
 	ExportReportData(w http.ResponseWriter, r *http.Request)
+	DeleteHistoryReport(w http.ResponseWriter, r *http.Request)
 }
 
 type documentController struct {
 	BasicQueryService service.BasicQueryService
 	DocumentService   service.DocumentService
 }
+
+const (
+	cdnDir = "./cdn"
+)
 
 func (c *documentController) ImportReportData(w http.ResponseWriter, r *http.Request) {
 	// Implement the logic for importing data from a file
@@ -47,7 +53,6 @@ func (c *documentController) ImportReportData(w http.ResponseWriter, r *http.Req
 
 	// 1. Save file
 	fileName := fileHeader.Filename
-	cdnDir := "./cdn"
 
 	err = os.MkdirAll(cdnDir, os.ModePerm)
 	if err != nil {
@@ -77,8 +82,10 @@ func (c *documentController) ImportReportData(w http.ResponseWriter, r *http.Req
 	// 2. Open file and read/write data
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		// Xử lý lỗi
+		glog.V(3).Infof("Error writing file %s: %v", filePath, err) // Log lỗi kèm đường dẫn file
+		http.Error(w, "Error saving file", http.StatusInternalServerError)
 		return
+
 	}
 
 	err = os.WriteFile(filePath, fileBytes, os.ModePerm)
@@ -110,7 +117,35 @@ func (c *documentController) ImportReportData(w http.ResponseWriter, r *http.Req
 }
 
 func (c *documentController) ExportReportData(w http.ResponseWriter, r *http.Request) {
+	return
+}
 
+func (c *documentController) DeleteHistoryReport(w http.ResponseWriter, r *http.Request) {
+	// Implement the logic for deleting a document from the database
+	var payload model.MediaData
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		BadRequestResponse(w, r, err)
+		return
+	}
+
+	err := c.DocumentService.DeleteFileReport(payload.ID)
+	if err != nil {
+		InternalServerErrorResponse(w, r, err)
+		return
+	}
+
+	filepath := filepath.Join(cdnDir, payload.FileName)
+	// Delete file from CDN
+	if err := os.Remove(filepath); err != nil {
+		InternalServerErrorResponse(w, r, err)
+		return
+	}
+
+	res := &Response{
+		Success: true,
+		Message: "Delete report success",
+	}
+	render.JSON(w, r, res)
 }
 
 func NewDocumentController() DocumentController {
