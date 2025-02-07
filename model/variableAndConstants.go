@@ -17,6 +17,7 @@ var MapModelType = map[string]interface{}{
 	"companyStakeholders": []CompanyStakeholder{},
 	"userReports":         []UserReport{},
 	"companyReports":      []CompanyReport{},
+	"tidings":             []Tiding{},
 }
 
 var MapAssociation = map[string]map[string]interface{}{ // Alown preload association 2 level model
@@ -44,5 +45,8 @@ var MapAssociation = map[string]map[string]interface{}{ // Alown preload associa
 	},
 	"companyReports": {
 		"Reports": "",
+	},
+	"tidings": {
+		"SubTidings": "",
 	},
 }
