@@ -52,6 +52,7 @@ func Router() http.Handler {
 	basicQueryController := controller.NewBasicQueryController()
 	advanceFilterController := controller.NewAdvanceFilterController()
 	// seedController := controller.NewSeedController()
+	tidingController := controller.NewTidingController()
 
 	documentController := controller.NewDocumentController()
 
@@ -96,6 +97,13 @@ func Router() http.Handler {
 				financial.Post("/upload", documentController.ImportReportData)
 				financial.Post("/export", documentController.ExportReportData)
 				financial.Delete("/delete", documentController.DeleteHistoryReport)
+			})
+
+			protectRouter.Route("/tiding", func(tidingRouter chi.Router) {
+				tidingRouter.Get("/all", tidingController.GetAll)
+                tidingRouter.Post("/create", tidingController.Create)
+				tidingRouter.Post("/update", tidingController.Update)
+				tidingRouter.Post("/delete", tidingController.Delete)
 			})
 
 			// Serve static files from the media directory

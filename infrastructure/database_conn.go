@@ -61,6 +61,7 @@ func InitDatabase(allowMigrate bool) error {
 
 			&model.FinancialReport{}, // Báo cáo tài chính
 
+			&model.Tiding{}, // Thông báo
 			// &model.BalanceSheet{},      // Cân đối kế toán
 			// &model.IncomeStatement{},   // Báo cáo doanh thu
 			// &model.CashflowStatement{}, // Báo cáo tài chính tăng trưởng
