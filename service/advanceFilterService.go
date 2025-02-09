@@ -61,7 +61,7 @@ func (s *advanceFilterService) Filter(payload model.AdvanceFilterPayload) (inter
 	var tableName = strcase.ToSnake(payload.ModelType)
 	glog.V(3).Infof("ModelName: %s", tableName)
 
-	if err := db.Debug().Model(modelType).Where(query).Find(&modelType).Error; err != nil {
+	if err := db.Debug().Model(&modelType).Where(query).Find(&modelType).Error; err != nil {
 		return nil, err
 	}
 	return &modelType, nil

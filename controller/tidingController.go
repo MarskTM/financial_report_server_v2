@@ -7,7 +7,7 @@ import (
 	"phenikaa/service"
 
 	"github.com/go-chi/render"
-	"github.com/golang/glog"
+	// "github.com/golang/glog"
 )
 
 type TidingController interface {
@@ -34,7 +34,7 @@ func (c *tidingController) GetAll(w http.ResponseWriter, r *http.Request) {
 		Success: true,
 		Message: "Get all tiding success",
 	}
-	glog.V(3).Infof("+ Get all tiding response: %v", res)
+	// glog.V(3).Infof("+ Get all tiding response: %v", res)
 	render.JSON(w, r, res)
 }
 
@@ -57,29 +57,29 @@ func (c *tidingController) Create(w http.ResponseWriter, r *http.Request) {
 		Success: true,
 		Message: "Create tiding success",
 	}
-	glog.V(3).Infof("+ Create tiding response: %v", res)
+	// glog.V(3).Infof("+ Create tiding response: %v", res)
 	render.JSON(w, r, res)
 }
 
 func (c *tidingController) Update(w http.ResponseWriter, r *http.Request) {
-	request := []model.Tiding{}
+	request := model.Tiding{}
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		BadRequestResponse(w, r, err)
 		return
 	}
 
-	err := c.tidingService.Update(request)
+	new, err := c.tidingService.Update(request)
 	if err != nil {
 		InternalServerErrorResponse(w, r, err)
 		return
 	}
 	// Send the response
 	res := &Response{
-		Data:    nil,
+		Data:    new,
 		Success: true,
 		Message: "Update tiding success",
 	}
-	glog.V(3).Infof("+ Update tiding response: %v", res)
+	// glog.V(3).Infof("+ Update tiding response: %v", res)
 	render.JSON(w, r, res)
 }
 
@@ -89,6 +89,20 @@ func (c *tidingController) Delete(w http.ResponseWriter, r *http.Request) {
 		BadRequestResponse(w, r, err)
 		return
 	}
+
+	err := c.tidingService.Delete(request.ID)
+	if err != nil {
+		InternalServerErrorResponse(w, r, err)
+		return
+	}
+
+	// Send the response
+	res := &Response{
+		Success: true,
+		Message: "Delete tiding success",
+	}
+	// glog.V(3).Infof("+ Delete tiding response: %v", res)
+	render.JSON(w, r, res)
 }
 
 func NewTidingController() TidingController {

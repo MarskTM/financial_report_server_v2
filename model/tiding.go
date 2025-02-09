@@ -20,15 +20,8 @@ type Tiding struct {
 	PrevImage   string `json:"prev_image"`
 
 	SubTidings []Tiding `json:"tidings" gorm:"foreignKey:ParentID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	Tags       []Tag    `json:"tags" gorm:"foreignKey:TidingID"`
 
 	CreatedAt time.Time      `json:"created_at" swaggerignore:"true"`
 	DeletedAt gorm.DeletedAt `json:"-" swaggerignore:"true"`
 	UpdatedAt time.Time      `json:"updated_at" swaggerignore:"true"`
-}
-
-type Tag struct {
-	gorm.Model
-	Name     string
-	TidingID uint
 }

@@ -10,8 +10,8 @@ import (
 type TidingService interface {
 	GetAll() ([]model.Tiding, error)
 	Create(new model.Tiding) (*model.Tiding, error)
-	Update(listUpdate []model.Tiding) error
-	Delete(id int) error
+	Update(new model.Tiding) (*model.Tiding, error)
+	Delete(id int32) error
 }
 
 type tidingService struct {
@@ -60,11 +60,49 @@ func (s *tidingService) Create(new model.Tiding) (*model.Tiding, error) {
 	return &new, nil
 }
 
-func (s *tidingService) Update(listUpdate []model.Tiding) error {
-	return s.db.Model(&model.Tiding{}).Updates(listUpdate).Error
+func (s *tidingService) Update(data model.Tiding) (*model.Tiding, error) {
+	err := s.db.Debug().Transaction(func(tx *gorm.DB) error {
+		parent := data
+		listChildren := data.SubTidings
+
+		if err := tx.Where("id = ?", parent.ID).Model(&model.Tiding{}).Updates(&parent).Error; err != nil {
+			return err
+		}
+
+		// Upsert SubTidings
+		for _, child := range listChildren {
+			var existingChild model.Tiding
+			if err := tx.Where("title = ? AND parent_id = ?", child.Title, parent.ID).First(&existingChild).Error; err != nil {
+				if err == gorm.ErrRecordNotFound {
+					// Create new SubTiding if not found
+					child.ParentID = &parent.ID
+					if err := tx.Create(&child).Error; err != nil {
+						return err
+					}
+				} else {
+					return err
+				}
+			} else {
+				// Update existing SubTiding
+				child.ID = existingChild.ID
+				child.ParentID = &parent.ID
+				if err := tx.Model(&existingChild).Updates(&child).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &data, nil
 }
 
-func (s *tidingService) Delete(id int) error {
+func (s *tidingService) Delete(id int32) error {
 	return s.db.Model(&model.Tiding{}).Where("id = ?", id).Delete(&model.Tiding{}).Error
 }
 

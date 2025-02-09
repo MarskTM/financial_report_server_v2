@@ -7,6 +7,7 @@ import (
 	"phenikaa/service"
 
 	"github.com/go-chi/render"
+	"github.com/golang/glog"
 )
 
 type BasicQueryController interface {
@@ -34,6 +35,8 @@ func (c *basicQueryController) Upsert(w http.ResponseWriter, r *http.Request) {
 		BadRequestResponse(w, r, err)
 		return
 	}
+
+	glog.V(3).Infof("Upsert payload: %v", payload)
 
 	temp, err := c.BasicQueryService.Upsert(payload)
 	if err != nil {
