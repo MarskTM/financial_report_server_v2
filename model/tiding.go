@@ -15,6 +15,8 @@ type Tiding struct {
 	Category string         `json:"category"`
 	Images   pq.StringArray `json:"images" gorm:"type:text[]"`
 	State    bool           `json:"state"`
+	Label    string         `json:"label"`
+	View     int32          `json:"view"`
 
 	PrevContent string `json:"prev_content"`
 	PrevImage   string `json:"prev_image"`
